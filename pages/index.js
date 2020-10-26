@@ -1,52 +1,32 @@
 import Head from 'next/head'
+
+import fs from 'fs'
+import path from 'path'
+
+import MapContainer from '../components/map-container'
+
 import styles from '../styles/Home.module.css'
 
-export default function Home() {
+export default function Home(props) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Create Next App</title>
+        <title>Labyrinth Game</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+        <h5 className={styles.title}>
+          Welcome to labyrinth game!
+        </h5>
+        <div className={styles.gameContainer}>
+          <div className={styles.canvasContainer}>
+            <MapContainer {...props}/>
+          </div>
+          <div className={styles.instructions}>
+            <p>Use arrows key to move the player</p>
+            <p>Restart the game clicking the win or lose text</p>
+          </div>
         </div>
       </main>
 
@@ -62,4 +42,33 @@ export default function Home() {
       </footer>
     </div>
   )
+}
+
+export async function getServerSideProps(context) {
+  function setMap (mapData) {
+    const lines = mapData.split('\n');
+    const firstLine = lines.shift()
+    const [nRows, nCols, steps] = firstLine.split(' ')
+    const map = lines.reduce((r, l, i) => {
+      const bricks = l.split('')
+      for (let j = 0; j < bricks.length; j++) {
+        r[j + '-' + i] = bricks[j]
+      }
+
+      return r
+    }, {})
+
+    return {
+      lines, map, nRows, nCols, steps
+    }
+  }
+  const mapsDirectory = path.join(process.cwd(), 'maps')
+  const map = fs.readFileSync(`${mapsDirectory}/map-0.txt`, 'utf8')
+  const mapData = setMap(map)
+
+  return {
+    props: {
+      ...mapData
+    }, // will be passed to the page component as props
+  }
 }

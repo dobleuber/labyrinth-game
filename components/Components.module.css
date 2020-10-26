@@ -1,0 +1,20 @@
+.svg {
+  border: 1px solid gray;
+  border-radius: 5px;
+}
+
+.brick {
+  fill: gray;
+}
+
+.start {
+  fill: blue;
+}
+
+.finish {
+  fill: green;
+}
+
+.gameStatus {
+  cursor: pointer
+}
